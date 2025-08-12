@@ -84,7 +84,6 @@ public class CategoryController {
      *
      * @param id The ID of the category to update.
      * @param name The new name of the category.
-     * @param orderNumber The new order number of the category.
      * @param imageFile An optional new image file for the category.
      * @return The updated category DTO, or HTTP status 404 (Not Found).
      */
@@ -93,10 +92,10 @@ public class CategoryController {
     public ResponseEntity<CategoryDTO> updateCategory(
             @PathVariable Long id,
             @RequestParam("name") String name,
-            @RequestParam("orderNumber") Integer orderNumber,
+            //@RequestParam("orderNumber") Integer orderNumber,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
         try {
-            CategoryDTO updatedCategory = categoryService.update(id, name, orderNumber, imageFile);
+            CategoryDTO updatedCategory = categoryService.update(id, name, imageFile);
             return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
         } catch (RuntimeException | IOException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -63,11 +63,11 @@ public class ImageWordService {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public ImageWordDTO update(Long imageWordId, String wordText, Integer orderNumber, MultipartFile imageFile) throws IOException {
+    public ImageWordDTO update(Long imageWordId, String wordText, MultipartFile imageFile) throws IOException {
         return imageWordRepository.findById(imageWordId)
                 .map(imageWord -> {
                     imageWord.setWord(wordText);
-                    imageWord.setOrderNumber(orderNumber);
+                    //imageWord.setOrderNumber(orderNumber);
 
                     // If a new image is provided, upload it and update the URL
                     if (imageFile != null && !imageFile.isEmpty()) {

@@ -80,7 +80,6 @@ public class ImageWordController {
      *
      * @param id The ID of the image+word to update.
      * @param wordText The new word for the image+word.
-     * @param orderNumber The new order number for the image+word.
      * @param imageFile An optional new image file for the image+word.
      * @return The updated image+word DTO, or HTTP status 404 (Not Found).
      */
@@ -89,10 +88,10 @@ public class ImageWordController {
     public ResponseEntity<ImageWordDTO> updateImageWord(
             @PathVariable Long id,
             @RequestParam("wordText") String wordText,
-            @RequestParam("orderNumber") Integer orderNumber,
+            //@RequestParam("orderNumber") Integer orderNumber,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
         try {
-            ImageWordDTO updatedImageWord = imageWordService.update(id, wordText, orderNumber, imageFile);
+            ImageWordDTO updatedImageWord = imageWordService.update(id, wordText, imageFile);
             return new ResponseEntity<>(updatedImageWord, HttpStatus.OK);
         } catch (RuntimeException | IOException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

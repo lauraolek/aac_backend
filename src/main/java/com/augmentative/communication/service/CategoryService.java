@@ -63,15 +63,16 @@ public class CategoryService {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public CategoryDTO update(Long categoryId, String name, Integer orderNumber, MultipartFile imageFile) throws IOException {
+    public CategoryDTO update(Long categoryId, String name, MultipartFile imageFile) throws IOException {
         return categoryRepository.findById(categoryId)
                 .map(category -> {
                     category.setName(name);
-                    category.setOrderNumber(orderNumber);
+                    //category.setOrderNumber(orderNumber);
 
                     // If a new image is provided, upload it and update the URL
                     if (imageFile != null && !imageFile.isEmpty()) {
                         try {
+                            System.out.println("NEW IMAGE");
                             String newImageUrl = imageStorageService.saveImage(imageFile);
                             category.setImageUrl(newImageUrl);
                         } catch (IOException e) {
