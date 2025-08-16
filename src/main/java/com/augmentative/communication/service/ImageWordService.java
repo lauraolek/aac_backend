@@ -23,7 +23,7 @@ public class ImageWordService {
 
     private final ImageWordRepository imageWordRepository;
     private final CategoryRepository categoryRepository;
-    private final ImageStorageService imageStorageService; // Inject the image storage service
+    private final ImageStorageService imageStorageService;
 
     public ImageWordService(ImageWordRepository imageWordRepository, CategoryRepository categoryRepository, ImageStorageService imageStorageService) {
         this.imageWordRepository = imageWordRepository;
@@ -70,16 +70,22 @@ public class ImageWordService {
                     //imageWord.setOrderNumber(orderNumber);
 
                     // If a new image is provided, upload it and update the URL
-                    if (imageFile != null && !imageFile.isEmpty()) {
+                    var oldImageUrl = imageWord.getImageUrl();
+                    var hasNewImage = imageFile != null && !imageFile.isEmpty();
+                    if (hasNewImage) {
                         try {
                             String newImageUrl = imageStorageService.saveImage(imageFile);
                             imageWord.setImageUrl(newImageUrl);
                         } catch (IOException e) {
+                            hasNewImage = false;
                             throw new RuntimeException("Failed to upload new image.", e);
                         }
                     }
 
                     ImageWord savedImageWord = imageWordRepository.save(imageWord);
+                    if (hasNewImage) {
+                        imageStorageService.deleteImage(oldImageUrl);
+                    }
                     return ImageWordDTO.fromEntity(savedImageWord);
                 })
                 .orElseThrow(() -> new RuntimeException("ImageWord not found with ID: " + imageWordId));
@@ -87,6 +93,15 @@ public class ImageWordService {
 
     @PreAuthorize("isAuthenticated()")
     public void deleteById(Long id) {
-        imageWordRepository.deleteById(id);
+        Optional<ImageWord> imageWordOptional = imageWordRepository.findById(id);
+        if (imageWordOptional.isPresent()) {
+            ImageWord imageWord = imageWordOptional.get();
+
+            imageStorageService.deleteImage(imageWord.getImageUrl());
+
+            imageWordRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("ImageWord not found with ID: " + id);
+        }
     }
 }

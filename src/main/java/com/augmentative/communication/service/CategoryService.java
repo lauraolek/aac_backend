@@ -23,7 +23,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final ChildProfileRepository childProfileRepository;
-    private final ImageStorageService imageStorageService; // Inject the image storage service
+    private final ImageStorageService imageStorageService;
 
     public CategoryService(CategoryRepository categoryRepository, ChildProfileRepository childProfileRepository, ImageStorageService imageStorageService) {
         this.categoryRepository = categoryRepository;
@@ -70,17 +70,22 @@ public class CategoryService {
                     //category.setOrderNumber(orderNumber);
 
                     // If a new image is provided, upload it and update the URL
-                    if (imageFile != null && !imageFile.isEmpty()) {
+                    var oldImageUrl = category.getImageUrl();
+                    var hasNewImage = imageFile != null && !imageFile.isEmpty();
+                    if (hasNewImage) {
                         try {
-                            System.out.println("NEW IMAGE");
                             String newImageUrl = imageStorageService.saveImage(imageFile);
                             category.setImageUrl(newImageUrl);
                         } catch (IOException e) {
+                            hasNewImage = false;
                             throw new RuntimeException("Failed to upload new image.", e);
                         }
                     }
 
                     Category savedCategory = categoryRepository.save(category);
+                    if (hasNewImage) {
+                        imageStorageService.deleteImage(oldImageUrl);
+                    }
                     return CategoryDTO.fromEntity(savedCategory);
                 })
                 .orElseThrow(() -> new RuntimeException("Category not found with ID: " + categoryId));
@@ -88,6 +93,16 @@ public class CategoryService {
 
     @PreAuthorize("isAuthenticated()")
     public void deleteById(Long id) {
-        categoryRepository.deleteById(id);
+        Optional<Category> categoryOptional = categoryRepository.findById(id);
+        if (categoryOptional.isPresent()) {
+            Category category = categoryOptional.get();
+
+            category.getImageWords().forEach(x -> imageStorageService.deleteImage(x.getImageUrl()));
+            imageStorageService.deleteImage(category.getImageUrl());
+
+            categoryRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Category not found with ID: " + id);
+        }
     }
 }

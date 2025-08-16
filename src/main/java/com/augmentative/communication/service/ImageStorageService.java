@@ -54,4 +54,34 @@ public class ImageStorageService {
         // endpoint or a CDN.
         return "/images/" + filename;
     }
+
+    /**
+     * Deletes an image file from storage given its URL.
+     * This method extracts the filename from the URL and attempts to delete the file.
+     * @param imageUrl The URL of the image to delete (e.g., "/api/images/uuid-filename.jpg").
+     * @return true if the file was successfully deleted or didn't exist, false if an error occurred.
+     */
+    public boolean deleteImage(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty() || !imageUrl.startsWith("/images/")) {
+            System.out.println("Invalid image URL for deletion: " + imageUrl);
+            return false;
+        }
+
+        String filename = imageUrl.substring("/images/".length());
+        Path filePath = Paths.get(uploadDir).resolve(filename);
+
+        try {
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+                System.out.println("Deleted image file: " + filename);
+                return true;
+            } else {
+                System.out.println("Image file not found for deletion: " + filename);
+                return true;
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to delete image file " + filename + ": " + e.getMessage());
+            return false;
+        }
+    }
 }
