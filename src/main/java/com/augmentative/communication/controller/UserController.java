@@ -3,18 +3,19 @@ package com.augmentative.communication.controller;
 import com.augmentative.communication.dto.LoginRequest;
 import com.augmentative.communication.dto.LoginResponse;
 import com.augmentative.communication.dto.UserDTO;
-import com.augmentative.communication.model.User; // Import User entity
+import com.augmentative.communication.model.User;
 import com.augmentative.communication.service.UserService;
 import com.augmentative.communication.util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 
 /**
@@ -64,15 +65,22 @@ public class UserController {
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
 
+            // Explicitly set the authentication in the SecurityContextHolder
+            // This ensures that subsequent method calls requiring authentication are authorized.
+            SecurityContextHolder.getContext().setAuthentication(authenticate);
+
             // If authentication is successful, generate a JWT token
             final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
-            final String token = jwtUtil.generateToken(userDetails.getUsername()); // Renamed jwt to token
+            final String token = jwtUtil.generateToken(userDetails.getUsername());
 
             // Retrieve the User entity to get the ID
             User user = userService.findByUsername(loginRequest.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found after authentication."));
 
-            return ResponseEntity.ok(new LoginResponse(token, user.getId())); // Include userId in response, renamed jwt to token
+            // Seed initial profile if none exist for this user
+            userService.seedInitialChildProfile(user.getId());
+
+            return ResponseEntity.ok(new LoginResponse(token, user.getId()));
 
         } catch (Exception e) {
             // Return unauthorized status if authentication fails
