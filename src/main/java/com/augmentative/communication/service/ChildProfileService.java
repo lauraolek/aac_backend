@@ -31,12 +31,14 @@ public class ChildProfileService {
 
     private final CategoryService categoryService;
     private final ImageWordService imageWordService;
+    private final ImageStorageService imageStorageService;
 
-    public ChildProfileService(ChildProfileRepository childProfileRepository, UserRepository userRepository, CategoryService categoryService, ImageWordService imageWordService) {
+    public ChildProfileService(ChildProfileRepository childProfileRepository, UserRepository userRepository, CategoryService categoryService, ImageWordService imageWordService, ImageStorageService imageStorageService) {
         this.childProfileRepository = childProfileRepository;
         this.userRepository = userRepository;
         this.categoryService = categoryService;
         this.imageWordService = imageWordService;
+        this.imageStorageService = imageStorageService;
     }
 
     public List<ChildProfileDTO> findByUserId(Long userId) {
@@ -74,6 +76,15 @@ public class ChildProfileService {
     }
 
     public void deleteById(Long id) {
+        Optional<ChildProfile> childProfileOptional = childProfileRepository.findById(id);
+        if (childProfileOptional.isPresent()) {
+            ChildProfile childProfile = childProfileOptional.get();
+
+            childProfile.getCategories().forEach(x -> {
+                imageStorageService.deleteImage(x.getImageUrl());
+                x.getImageWords().forEach(y -> imageStorageService.deleteImage(y.getImageUrl()));
+            });
+        }
         childProfileRepository.deleteById(id);
     }
 
