@@ -1,7 +1,10 @@
 package com.augmentative.communication.service;
 
-import org.springframework.stereotype.Service;
 import com.augmentative.communication.dto.ProcessSentenceRequest;
+import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 /**
  * Service for integrating with estntlk.
@@ -21,8 +24,55 @@ public class EstntlkService {
      * @return The "modified" sentence.
      */
     public String processSentence(ProcessSentenceRequest request) {
-        System.out.println("Mocking estntlk processing for sentence: \"" + request.getSentence() + "\"");
-        // Example: simple modification for demonstration
-        return "Processed by estntlk: " + request.getSentence().toUpperCase();
+        try {
+            System.out.println("Mocking estntlk processing for sentence: \"" + request.getSentence() + "\"");
+            var wordList = request.getSentence().split(",");
+            var sb = new StringBuilder();
+            sb.append("\"[");
+            for (int i = 0; i < wordList.length; i++) {
+                String word = wordList[i].trim();
+
+                sb.append("'").append(word).append("'");
+
+                if (i < wordList.length - 1) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("]\"");
+
+            // Build the command to run the script
+            ProcessBuilder pb = new ProcessBuilder("python", "script.py", sb.toString());
+            pb.redirectErrorStream(true);
+
+            // Set the working directory if needed
+            pb.directory(new java.io.File("src/main/resources/estNtlkScript"));
+
+            // Start the process
+            Process process = pb.start();
+
+            // Read the output
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder output = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                output.append(line);
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new RuntimeException("Python script exited with code " + exitCode);
+            }
+
+            output.delete(0, 1);
+            output.delete(output.length() - 1, output.length());
+
+            System.out.println(output);
+            return output.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error: Failed to run script.";
+        }
     }
 }

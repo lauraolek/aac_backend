@@ -27,7 +27,7 @@ public class TextProcessingController {
      * Endpoint to process a sentence using the estntlk service.
      * This is currently mocked. Requires authentication.
      *
-     * @param request A JSON object containing the sentence, e.g., {"sentence": "Tere maailm"}
+     * @param request A string of comma-separated words
      * @return A response containing the processed sentence.
      */
     @PreAuthorize("isAuthenticated()")
