@@ -100,8 +100,10 @@ public class ChildProfileService {
 
             byte[] iWantImageBytes = Files.readAllBytes(seedImagesPath.resolve("I want.png"));
             InMemoryMultipartFile iWantImage = new InMemoryMultipartFile(iWantImageBytes, "I want.png", "image/png");
-            byte[] iSeeImageBytes = Files.readAllBytes(seedImagesPath.resolve("see.png"));
-            InMemoryMultipartFile iSeeImage = new InMemoryMultipartFile(iSeeImageBytes, "see.png", "image/png");
+            byte[] yesImageBytes = Files.readAllBytes(seedImagesPath.resolve("yes.png"));
+            InMemoryMultipartFile yesImage = new InMemoryMultipartFile(yesImageBytes, "yes.png", "image/png");
+            byte[] noImageBytes = Files.readAllBytes(seedImagesPath.resolve("no.png"));
+            InMemoryMultipartFile noImage = new InMemoryMultipartFile(noImageBytes, "no.png", "image/png");
 
             byte[] playImageBytes = Files.readAllBytes(seedImagesPath.resolve("play.png"));
             InMemoryMultipartFile playImage = new InMemoryMultipartFile(playImageBytes, "play.png", "image/png");
@@ -125,7 +127,8 @@ public class ChildProfileService {
 
 
             imageWordService.save(beginningsCategory.getId(), "Ma tahan", iWantImage);
-            imageWordService.save(beginningsCategory.getId(), "Ma näen", iSeeImage);
+            imageWordService.save(beginningsCategory.getId(), "Jah", yesImage);
+            imageWordService.save(beginningsCategory.getId(), "Ei", noImage);
 
             imageWordService.save(activitiesCategory.getId(), "mängima", playImage);
             imageWordService.save(activitiesCategory.getId(), "sööma", eatImage);
