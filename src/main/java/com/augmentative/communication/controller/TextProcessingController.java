@@ -1,14 +1,16 @@
 package com.augmentative.communication.controller;
 
+import com.augmentative.communication.dto.ProcessSentenceRequest;
+import com.augmentative.communication.dto.ProcessSentenceResponse;
 import com.augmentative.communication.service.EstntlkService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.augmentative.communication.dto.ProcessSentenceRequest;
+
+import java.io.IOException;
+import java.util.Base64;
 
 /**
  * REST Controller for text processing operations, specifically for estntlk integration.
@@ -32,8 +34,20 @@ public class TextProcessingController {
      */
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/process")
-    public ResponseEntity<String> processSentence(@RequestBody ProcessSentenceRequest request) {
+    public ProcessSentenceResponse processSentence(@RequestBody ProcessSentenceRequest request) {
         String processedSentence = estntlkService.processSentence(request);
-        return new ResponseEntity<>(processedSentence, HttpStatus.OK);
+        try {
+            var audioBytes = estntlkService.textToSpeech(processedSentence, "mari", 1);
+            String audioBase64 = Base64.getEncoder().encodeToString(audioBytes);
+
+            return new ProcessSentenceResponse(
+                    processedSentence,
+                    audioBase64
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
