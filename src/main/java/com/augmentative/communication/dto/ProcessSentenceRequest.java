@@ -1,13 +1,15 @@
 package com.augmentative.communication.dto;
 
-public class ProcessSentenceRequest {
-    private String sentence;
+import java.util.List;
 
-    public String getSentence() {
+public class ProcessSentenceRequest {
+    private List<ImageWordDTO> sentence;
+
+    public List<ImageWordDTO> getSentence() {
         return sentence;
     }
 
-    public void setSentence(String sentence) {
+    public void setSentence(List<ImageWordDTO> sentence) {
         this.sentence = sentence;
     }
 }

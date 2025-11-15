@@ -1,5 +1,6 @@
 package com.augmentative.communication.service;
 
+import com.augmentative.communication.dto.ImageWordDTO;
 import com.augmentative.communication.dto.ProcessSentenceRequest;
 import org.springframework.stereotype.Service;
 
@@ -47,15 +48,15 @@ public class EstntlkService {
     public String processSentence(ProcessSentenceRequest request) {
         try {
             System.out.println("Mocking estntlk processing for sentence: \"" + request.getSentence() + "\"");
-            var wordList = request.getSentence().split(",");
+            var wordList = request.getSentence().stream().map(ImageWordDTO::getWord).toList();
             var sb = new StringBuilder();
             sb.append("\"[");
-            for (int i = 0; i < wordList.length; i++) {
-                String word = wordList[i].trim();
+            for (int i = 0; i < wordList.size(); i++) {
+                String word = wordList.get(i).trim();
 
                 sb.append("'").append(word).append("'");
 
-                if (i < wordList.length - 1) {
+                if (i < wordList.size() - 1) {
                     sb.append(", ");
                 }
             }

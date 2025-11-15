@@ -7,7 +7,7 @@ public class ImageWordDTO {
     private String word;
     private String imageUrl;
     //private Integer orderNumber;
-    //private Long categoryId;
+    private String conjugatedWord;
 
     public ImageWordDTO() {
     }
@@ -47,20 +47,28 @@ public class ImageWordDTO {
         this.id = id;
     }
 
-    public String getword() {
+    public String getWord() {
         return word;
     }
 
-    public void setword(String word) {
+    public void setWord(String word) {
         this.word = word;
     }
 
-    public String getimageUrl() {
+    public String getImageUrl() {
         return imageUrl;
     }
 
-    public void setimageUrl(String imageUrl) {
+    public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getConjugatedWord() {
+        return conjugatedWord;
+    }
+
+    public void setConjugatedWord(String conjugatedWord) {
+        this.conjugatedWord = conjugatedWord;
     }
 /*
     public Integer getOrderNumber() {
