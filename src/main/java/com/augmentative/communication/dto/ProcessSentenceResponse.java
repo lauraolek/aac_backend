@@ -1,20 +1,22 @@
 package com.augmentative.communication.dto;
 
+import java.util.List;
+
 public class ProcessSentenceResponse {
-    private String sentence;
+    private List<ImageWordDTO> sentence;
 
     private String audioBase64;
 
-    public ProcessSentenceResponse(String sentence, String audioBase64) {
+    public ProcessSentenceResponse(List<ImageWordDTO> sentence, String audioBase64) {
         this.sentence = sentence;
         this.audioBase64 = audioBase64;
     }
 
-    public String getSentence() {
+    public List<ImageWordDTO> getSentence() {
         return sentence;
     }
 
-    public void setSentence(String sentence) {
+    public void setSentence(List<ImageWordDTO> sentence) {
         this.sentence = sentence;
     }
 
