@@ -1,5 +1,6 @@
 package com.augmentative.communication.service;
 
+import com.augmentative.communication.dto.ImageWordDTO;
 import com.augmentative.communication.dto.ProcessSentenceRequest;
 import org.springframework.stereotype.Service;
 
@@ -46,16 +47,18 @@ public class EstntlkService {
      */
     public String processSentence(ProcessSentenceRequest request) {
         try {
+            long startTime = System.nanoTime();
+
             System.out.println("Mocking estntlk processing for sentence: \"" + request.getSentence() + "\"");
-            var wordList = request.getSentence().split(",");
+            var wordList = request.getSentence().stream().map(ImageWordDTO::getWord).toList();
             var sb = new StringBuilder();
             sb.append("\"[");
-            for (int i = 0; i < wordList.length; i++) {
-                String word = wordList[i].trim();
+            for (int i = 0; i < wordList.size(); i++) {
+                String word = wordList.get(i).trim();
 
                 sb.append("'").append(word).append("'");
 
-                if (i < wordList.length - 1) {
+                if (i < wordList.size() - 1) {
                     sb.append(", ");
                 }
             }
@@ -85,9 +88,18 @@ public class EstntlkService {
                 throw new RuntimeException("Python script exited with code " + exitCode);
             }
 
+            // --- STOP TIMING ---
+            long endTime = System.nanoTime();
+            long durationNano = endTime - startTime;
+            double durationSeconds = durationNano / 1_000_000_000.0;
+
+            // Log the execution time
+            System.out.printf("Execution time: %.4f seconds%n", durationSeconds);
+            // --- TIMING END ---
+
             output.delete(0, 1);
             output.delete(output.length() - 1, output.length());
-
+           
             System.out.println(output);
             return output.toString();
 
